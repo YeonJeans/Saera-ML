@@ -111,9 +111,9 @@ def get_pitch_graph(audio: UploadFile = File(...)):
         'pitch_y': confident_pitch_outputs_y
     }
 
-    return Response(content=response_body, media_type='application/json')
+    return response_body
 
 
 @app.get('/score')
-def calculate_score(text = None):
+def calculate_pitch_score(text = None):
     pass
