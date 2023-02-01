@@ -1,5 +1,5 @@
 from fastapi import FastAPI, status, HTTPException, Response, File, UploadFile
-
+from utils import fill_gap, get_score
 from dotenv import load_dotenv
 
 import tensorflow as tf
@@ -110,6 +110,8 @@ def get_pitch_graph(audio: UploadFile = File(...)):
         'pitch_x': confident_pitch_outputs_x,
         'pitch_y': confident_pitch_outputs_y
     }
+
+    response_body = fill_gap(response_body)
 
     return response_body
 
