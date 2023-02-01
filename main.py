@@ -1,18 +1,21 @@
 from fastapi import FastAPI, status, HTTPException, Response, File, UploadFile
-from utils import fill_gap, get_score
-from dotenv import load_dotenv
 
 import tensorflow as tf
 import tensorflow_hub as hub
-import numpy as np
 
+from scipy.io import wavfile
 from pydub import AudioSegment
+
+from utils import fill_gap, compare
+from model import ScoreRequest
+
+from dotenv import load_dotenv
 
 import logging
 import httpx
+import json
 import os
 import urllib
-from scipy.io import wavfile
 import datetime
 
 
@@ -116,6 +119,32 @@ def get_pitch_graph(audio: UploadFile = File(...)):
     return response_body
 
 
-@app.get('/score')
-def calculate_pitch_score(text = None):
-    pass
+@app.post('/score')
+def calculate_pitch_score(score_request: ScoreRequest):
+    logger.info('[/score] called')
+    pitch_data = score_request.dict()
+
+    if len(pitch_data['target_pitch_x']) != len(pitch_data['target_pitch_y']):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='target pitch data is invalid: x, y length is not same')
+    if len(pitch_data['user_pitch_x']) != len(pitch_data['user_pitch_y']):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='user pitch data is invalid: x, y length is not same')
+    
+
+    target_pitch = {
+        "label": "target",
+        "pitch_x": pitch_data['target_pitch_x'],
+        "pitch_y": pitch_data['target_pitch_y']
+    }
+
+    user_pitch = {
+        "label": "user",
+        "pitch_x": pitch_data['user_pitch_x'],
+        "pitch_y": pitch_data['user_pitch_y']
+    }
+
+    score = compare(target_pitch, user_pitch)
+    logger.info('[/score] calculated score: {}'.format(score))
+    
+    return {
+        'score': score
+    }
