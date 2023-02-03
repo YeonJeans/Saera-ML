@@ -1,5 +1,6 @@
 import numpy as np
 from pandas import DataFrame, Series
+import math
 
 NAN = -1
 
@@ -36,9 +37,8 @@ def scale(graph, target_length):
     if target_length < len(graph["pitch_x"]):
         return graph
     
-    scale_factor = target_length / len(graph["pitch_x"])
-
-    graph["pitch_x"] = [round(x * scale_factor) for x in graph["pitch_x"]]
+    scale_factor = (target_length - 1) / (len(graph["pitch_x"]) - 1)
+    graph["pitch_x"] = [math.ceil(x * scale_factor) for x in graph["pitch_x"]]
     graph = fill_gap(graph)
 
     return graph
