@@ -1,6 +1,7 @@
 import numpy as np
 from pandas import DataFrame, Series
 import math
+import dtw
 
 NAN = -1
 
@@ -72,7 +73,7 @@ def preprocess(graph_1, graph_2):
     return shorter_graph, longer_graph
 
 
-def get_score(graph_1, graph_2):
+def get_MAPE_score(graph_1, graph_2):
     if len(graph_1["pitch_x"]) != len(graph_2["pitch_x"]):
         raise ValueError("The length of two graphs must be same.")
     
@@ -85,8 +86,16 @@ def get_score(graph_1, graph_2):
     return score
 
 
-def compare(target, user):
-    graph_1, graph_2 = preprocess(target, user)
-    score = get_score(graph_1, graph_2)
+def get_DTW_score(graph_1, graph_2):
+    score = dtw.dtw(graph_1["pitch_y"], graph_2["pitch_y"], keep_internals=True)
+    return score.distance
 
-    return score
+
+def compare(target, user):
+    # DTW_score = get_DTW_score(target, user)
+    graph_1, graph_2 = preprocess(target, user)
+    MAPE_score = get_MAPE_score(graph_1, graph_2)
+
+    # print("DTW: ", DTW_score)
+    # print("MAPE: ", MAPE_score)
+    return MAPE_score
