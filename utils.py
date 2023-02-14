@@ -23,7 +23,7 @@ def smooth_data_fft(arr, span):
 
 def smooth(graph):
     # pitch_y 데이터를 smoothing한다.
-    smoothed_pitch_y = smooth_data_savgol_2(graph["pitch_y"], 16)
+    smoothed_pitch_y = smooth_data_fft(graph["pitch_y"], 1.2)
     smoothed_pitch_y = smoothed_pitch_y.tolist()
     graph["pitch_y"] = smoothed_pitch_y
     # print(graph)
