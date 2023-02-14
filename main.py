@@ -6,7 +6,7 @@ import tensorflow_hub as hub
 from scipy.io import wavfile
 from pydub import AudioSegment
 
-from utils import fill_gap, compare
+from utils import smooth, compare
 from model import ScoreRequest
 
 from dotenv import load_dotenv
@@ -109,12 +109,12 @@ def get_pitch_graph(audio: UploadFile = File(...)):
     confident_pitch_outputs = [ (i, p) for i, p, c in zip(indices, pitch_outputs, confidence_outputs) if c > 0.9 ]
     confident_pitch_outputs_x, confident_pitch_outputs_y = zip(*confident_pitch_outputs)
 
-    response_body = {
+    pitch_graph = {
         'pitch_x': confident_pitch_outputs_x,
         'pitch_y': confident_pitch_outputs_y
     }
 
-    response_body = fill_gap(response_body)
+    response_body = smooth(pitch_graph)
 
     return response_body
 

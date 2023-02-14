@@ -1,9 +1,32 @@
 import numpy as np
 from pandas import DataFrame, Series
+from scipy.signal import savgol_filter
+import scipy.fftpack as fftpack
+import matplotlib.pyplot as plt
 import math
 import dtw
 
 NAN = -1
+
+
+def smooth_data_savgol_2(arr, span):  
+    return savgol_filter(arr, span, 2)
+
+
+def smooth_data_fft(arr, span):
+    w = fftpack.rfft(arr)
+    spectrum = w ** 2
+    cutoff_idx = spectrum < (spectrum.max() * (1 - np.exp(-span / 2000)))
+    w[cutoff_idx] = 0
+    return fftpack.irfft(w)
+
+
+def smooth(graph):
+    # pitch_y 데이터를 smoothing한다.
+    smoothed_pitch_y = smooth_data_savgol_2(graph["pitch_y"], 16)
+    graph["pitch_y"] = smoothed_pitch_y
+    # print(graph)
+    return graph
 
 
 def fill_gap(graph, fill_with = NAN):
@@ -99,3 +122,15 @@ def compare(target, user):
     # print("DTW: ", DTW_score)
     # print("MAPE: ", MAPE_score)
     return MAPE_score
+
+
+def draw_graph(graph):
+    # resize graph
+    plt.figure(figsize=(14, 8))
+    # graph['pitch_y'] = [ np.nan if x == -1.0 else x for x in graph['pitch_y']]
+    plt.plot(graph["pitch_x"], graph["pitch_y"], label="y")
+    smoothed_y = smooth_data_savgol_2(graph["pitch_y"], 4)
+    plt.plot(graph["pitch_x"], smoothed_y, label="smoothed_y")
+
+    plt.legend()
+    plt.show()
