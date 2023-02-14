@@ -14,10 +14,14 @@ cffi @ file:///croot/cffi_1670423208954/work
 chardet==5.1.0
 charset-normalizer==3.0.1
 click @ file:///tmp/build/80754af9/click_1646056590078/work
+contourpy @ file:///opt/conda/conda-bld/contourpy_1663827406301/work
 cryptography @ file:///croot/cryptography_1673298753778/work
+cycler @ file:///tmp/build/80754af9/cycler_1637851556182/work
+dtw-python==1.3.0
 fastapi==0.89.1
 flatbuffers==23.1.21
 flit_core @ file:///opt/conda/conda-bld/flit-core_1644941570762/work/source/flit_core
+fonttools==4.25.0
 frozenlist @ file:///croot/frozenlist_1670004507010/work
 gast @ file:///Users/ktietz/demo/mc3/conda-bld/gast_1628588903283/work
 google-auth==2.16.0
@@ -33,19 +37,24 @@ idna @ file:///croot/idna_1666125576474/work
 importlib-metadata==6.0.0
 keras==2.11.0
 Keras-Preprocessing @ file:///tmp/build/80754af9/keras-preprocessing_1612283640596/work
+kiwisolver @ file:///croot/kiwisolver_1672387140495/work
 libclang==15.0.6.1
 Markdown @ file:///croot/markdown_1671541909495/work
 MarkupSafe==2.1.2
+matplotlib @ file:///croot/matplotlib-suite_1670466153205/work
 mkl-fft==1.3.1
 mkl-random @ file:///tmp/build/80754af9/mkl_random_1626186066731/work
 mkl-service==2.4.0
 multidict @ file:///croot/multidict_1665674239670/work
+munkres==1.1.4
 numexpr @ file:///croot/numexpr_1668713893690/work
 numpy==1.24.1
 oauthlib==3.2.2
 opt-einsum @ file:///tmp/build/80754af9/opt_einsum_1621500238896/work
 packaging==23.0
 pandas==1.5.2
+Pillow==9.3.0
+ply==3.11
 protobuf==3.20.1
 pyasn1 @ file:///Users/ktietz/demo/mc3/conda-bld/pyasn1_1629708007385/work
 pyasn1-modules==0.2.8
@@ -54,6 +63,8 @@ pydantic==1.10.4
 pydub==0.25.1
 PyJWT @ file:///opt/conda/conda-bld/pyjwt_1657544592787/work
 pyOpenSSL @ file:///opt/conda/conda-bld/pyopenssl_1643788558760/work
+pyparsing @ file:///opt/conda/conda-bld/pyparsing_1661452539315/work
+PyQt5-sip==12.11.0
 PySocks @ file:///tmp/build/80754af9/pysocks_1605305812635/work
 python-dateutil @ file:///tmp/build/80754af9/python-dateutil_1626374649649/work
 python-dotenv==0.21.1
@@ -64,6 +75,7 @@ requests-oauthlib==1.3.1
 rfc3986==1.5.0
 rsa==4.9
 scipy==1.10.0
+sip @ file:///tmp/abs_44cd77b_pu/croots/recipe/sip_1659012365470/work
 six @ file:///tmp/build/80754af9/six_1644875935023/work
 sniffio==1.3.0
 starlette==0.22.0
@@ -75,6 +87,8 @@ tensorflow-estimator==2.11.0
 tensorflow-hub==0.12.0
 tensorflow-io-gcs-filesystem==0.30.0
 termcolor==2.2.0
+toml @ file:///tmp/build/80754af9/toml_1616166611790/work
+tornado @ file:///opt/conda/conda-bld/tornado_1662061693373/work
 typing_extensions @ file:///croot/typing_extensions_1669924550328/work
 urllib3 @ file:///croot/urllib3_1673575502006/work
 uvicorn @ file:///home/conda/feedstock_root/build_artifacts/uvicorn-split_1669234664476/work
