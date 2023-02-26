@@ -107,7 +107,7 @@ def get_MAPE_score(graph_1, graph_2):
     user_y = DataFrame(graph_1["pitch_y"] if graph_1["label"] == "user" else graph_2["pitch_y"])
 
     MAPE = np.mean(np.abs((target_y - user_y) / target_y)) * 100
-    score = 100 - MAPE
+    score = 100 - MAPE[0]
     # print("MAPE: ", MAPE)
     return score
 
