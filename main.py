@@ -142,9 +142,10 @@ def calculate_pitch_score(score_request: ScoreRequest):
         "pitch_y": pitch_data['user_pitch_y']
     }
 
-    score = compare(target_pitch, user_pitch)
-    logger.info('[/score] calculated score: {}'.format(score))
+    MAPE_score, DTW_score = compare(target_pitch, user_pitch)
+    logger.info('[/score] calculated MAPE score: {}, DTW score'.format(MAPE_score, DTW_score))
     
     return {
-        'score': score
+        'MAPE_score': MAPE_score,
+        'DTW_score': DTW_score
     }

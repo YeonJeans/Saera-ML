@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import math
 import dtw
 
+from graph import graph_1
+
 NAN = -1
 
 
@@ -119,10 +121,10 @@ def compare(target, user):
     # DTW_score = get_DTW_score(target, user)
     graph_1, graph_2 = preprocess(target, user)
     MAPE_score = get_MAPE_score(graph_1, graph_2)
-
+    DTW_score = get_DTW_score(graph_1, graph_2)
     # print("DTW: ", DTW_score)
     # print("MAPE: ", MAPE_score)
-    return MAPE_score
+    return MAPE_score, DTW_score
 
 
 def draw_graph(graph):
@@ -130,8 +132,9 @@ def draw_graph(graph):
     plt.figure(figsize=(14, 8))
     # graph['pitch_y'] = [ np.nan if x == -1.0 else x for x in graph['pitch_y']]
     plt.plot(graph["pitch_x"], graph["pitch_y"], label="y")
-    smoothed_y = smooth_data_savgol_2(graph["pitch_y"], 4)
+    smoothed_y = smooth(graph)["pitch_y"]
     plt.plot(graph["pitch_x"], smoothed_y, label="smoothed_y")
 
     plt.legend()
     plt.show()
+
