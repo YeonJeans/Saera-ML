@@ -107,7 +107,11 @@ def get_pitch_graph(audio: UploadFile = File(...)):
 
     # confidence 0.9 이상인 것만 추출
     confident_pitch_outputs = [ (i, p) for i, p, c in zip(indices, pitch_outputs, confidence_outputs) if c > 0.9 ]
-    confident_pitch_outputs_x, confident_pitch_outputs_y = zip(*confident_pitch_outputs)
+    try:
+        confident_pitch_outputs_x, confident_pitch_outputs_y = zip(*confident_pitch_outputs)
+    except ValueError:
+        logger.error('[/pitch-graph] an error occurred; confident pitch output is empty')
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='confident pitch output is empty')
 
     pitch_graph = {
         'pitch_x': confident_pitch_outputs_x,
