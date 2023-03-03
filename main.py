@@ -1,12 +1,11 @@
-from fastapi import FastAPI, status, HTTPException, Response, File, UploadFile
+from fastapi import FastAPI, status, HTTPException, Response, File, UploadFile, Depends
 
 import tensorflow as tf
 import tensorflow_hub as hub
 
 from scipy.io import wavfile
-from pydub import AudioSegment
 
-from utils import smooth, compare
+from utils import smooth, compare, convert_audio_for_model
 from model import ScoreRequest
 
 from dotenv import load_dotenv
@@ -26,19 +25,12 @@ print("TensorFlow version: ", tf.__version__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(verbose=True)
-sampling_rate = int(os.getenv('SAMPLING_RATE'))
 
 os.environ["TFHUB_CACHE_DIR"] = ".cache/tfhub"
 model = hub.load('https://tfhub.dev/google/spice/2')
+sampling_rate = int(os.getenv('SAMPLING_RATE'))
 
 app = FastAPI()
-
-
-def convert_audio_for_model(user_file, output_file='converted_audio_file.wav'):
-  audio = AudioSegment.from_file(user_file)
-  audio = audio.set_frame_rate(sampling_rate).set_channels(1)
-  audio.export(output_file, format='wav')
-  return output_file
 
 
 @app.get('/tts')
@@ -91,7 +83,7 @@ def get_pitch_graph(audio: UploadFile = File(...)):
     with open('audio_pitch/{}.wav'.format(random_name), 'wb') as f:
         f.write(raw_audio_file)
 
-    converted_audio_file = convert_audio_for_model('audio_pitch/{}.wav'.format(random_name), 'audio_pitch/converted_{}.wav'.format(random_name))
+    converted_audio_file = convert_audio_for_model('audio_pitch/{}.wav'.format(random_name), 'audio_pitch/converted_{}.wav'.format(random_name), sampling_rate)
     _, audio_file = wavfile.read(converted_audio_file, 'rb')
 
     model_output = model.signatures["serving_default"](tf.constant(audio_file, tf.float32))

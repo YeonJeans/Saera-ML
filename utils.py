@@ -3,12 +3,19 @@ from pandas import DataFrame, Series
 from scipy.signal import savgol_filter
 import scipy.fftpack as fftpack
 import matplotlib.pyplot as plt
+from pydub import AudioSegment
+
 import math
 import dtw
 
-from graph import graph_1
-
 NAN = -1
+
+
+def convert_audio_for_model(user_file, output_file='converted_audio_file.wav', sampling_rate=16000):
+  audio = AudioSegment.from_file(user_file)
+  audio = audio.set_frame_rate(sampling_rate).set_channels(1)
+  audio.export(output_file, format='wav')
+  return output_file
 
 
 def smooth_data_savgol_2(arr, span):  
