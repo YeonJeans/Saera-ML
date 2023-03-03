@@ -1,4 +1,5 @@
 from fastapi import FastAPI, status, HTTPException, Response, File, UploadFile, Depends
+from fastapi.security.api_key import APIKey
 
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -7,6 +8,7 @@ from scipy.io import wavfile
 
 from utils import smooth, compare, convert_audio_for_model
 from model import ScoreRequest
+import auth
 
 from dotenv import load_dotenv
 
@@ -71,7 +73,7 @@ async def get_tts_wav_from_clova(text = None):
 
 
 @app.post('/pitch-graph')
-def get_pitch_graph(audio: UploadFile = File(...)):
+def get_pitch_graph(audio: UploadFile = File(...), api_key: APIKey = Depends(auth.get_api_key)):
     logger.info('[/pitch-graph] called')
 
     if audio.file is None:
@@ -116,7 +118,7 @@ def get_pitch_graph(audio: UploadFile = File(...)):
 
 
 @app.post('/score')
-def calculate_pitch_score(score_request: ScoreRequest):
+def calculate_pitch_score(score_request: ScoreRequest, api_key: APIKey = Depends(auth.get_api_key)):
     logger.info('[/score] called')
     pitch_data = score_request.dict()
 
