@@ -36,7 +36,7 @@ app = FastAPI()
 
 
 @app.get('/tts')
-async def get_tts_wav_from_clova(text = None):
+async def get_tts_wav_from_clova(text = None, api_key: APIKey = Depends(auth.get_api_key)):
     logger.info('[/tts] called; text: {}'.format(text))
 
     if text is None:
