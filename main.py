@@ -6,7 +6,7 @@ import tensorflow_hub as hub
 
 from scipy.io import wavfile
 
-from utils import smooth, compare, convert_audio_for_model
+from utils import smooth, compare, convert_audio_for_model, semantic_sentence_search
 from model import ScoreRequest
 import auth
 
@@ -147,3 +147,12 @@ def calculate_pitch_score(score_request: ScoreRequest, api_key: APIKey = Depends
         'MAPE_score': MAPE_score,
         'DTW_score': DTW_score
     }
+
+
+@app.get('/semantic-search')
+def sementic_search(query: str, top_n: int = 3, api_key: APIKey = Depends(auth.get_api_key)):
+    logger.info('[/semantic-search] called; query: {}'.format(query))
+    result = semantic_sentence_search(query, top_n)
+    logger.info('[/semantic-search] result: {}'.format(result))
+
+    return result

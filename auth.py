@@ -10,8 +10,8 @@ load_dotenv(verbose=True)
 API_KEY = os.getenv('API_KEY')
 api_key_header = APIKeyHeader(name='Access-Token', auto_error=False)
 
+
 async def get_api_key(api_key_header: str = Security(api_key_header)):
-    print(api_key_header, API_KEY)
     if api_key_header == API_KEY:
         return api_key_header
     else:

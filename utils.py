@@ -1,14 +1,20 @@
 import numpy as np
+import pandas
 from pandas import DataFrame, Series
 from scipy.signal import savgol_filter
 import scipy.fftpack as fftpack
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
-
-import math
+import faiss
+from sentence_transformers import SentenceTransformer
 import dtw
 
+import math
+
+
 NAN = -1
+sentences = pandas.read_csv('data/sentences.csv')
+model = SentenceTransformer("jhgan/ko-sroberta-multitask")
 
 
 def convert_audio_for_model(user_file, output_file='converted_audio_file.wav', sampling_rate=16000):
@@ -145,3 +151,41 @@ def draw_graph(graph):
     plt.legend()
     plt.show()
 
+
+def create_id_to_sen_dict():
+    id_to_sen = {}
+    for i in range(len(sentences)):
+        id_to_sen[sentences["id"][i]] = sentences["sentence"][i]
+    return id_to_sen
+
+
+def create_sen_to_id_dict():
+    sen_to_id = {}
+    for i in range(len(sentences)):
+        sen_to_id[sentences["sentence"][i]] = sentences["id"][i]
+    return sen_to_id
+
+
+def semantic_sentence_search(text: str, n: int = 3):
+    id_to_sen = create_id_to_sen_dict()
+
+    encoded_data = model.encode(sentences["sentence"])
+
+    index = faiss.IndexIDMap(faiss.IndexFlatIP(768))
+    index.add_with_ids(encoded_data, np.array(sentences["id"]))
+
+    faiss.write_index(index, 'sentences.index')
+
+    query_vector = model.encode([text])
+    top_n = index.search(query_vector, n)
+
+    return {
+        str(i): {
+            "id": int(top_n[1][0][i]),
+            "sentence": id_to_sen[int(top_n[1][0][i])],
+        } for i in range(n)
+    }
+
+# query = str(input("문장을 입력하세요: "))
+# result = semantic_sentence_search(query)
+# print(result)
