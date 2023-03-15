@@ -25,6 +25,9 @@ logger.setLevel(logging.INFO)
 
 print("TensorFlow version: ", tf.__version__)
 
+# Ignore warning about tensorflow
+tf.get_logger().setLevel(logging.ERROR)
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(verbose=True)
 
