@@ -13,8 +13,13 @@ import math
 
 
 NAN = -1
+
 sentences = pandas.read_csv('data/sentences.csv')
+
+print("model loading...")
 model = SentenceTransformer("jhgan/ko-sroberta-multitask")
+encoded_data = model.encode(sentences["sentence"])
+print("model loaded")
 
 
 def convert_audio_for_model(user_file, output_file='converted_audio_file.wav', sampling_rate=16000):
@@ -169,8 +174,6 @@ def create_sen_to_id_dict():
 def semantic_sentence_search(text: str, n: int = 3):
     id_to_sen = create_id_to_sen_dict()
 
-    encoded_data = model.encode(sentences["sentence"])
-
     index = faiss.IndexIDMap(faiss.IndexFlatIP(768))
     index.add_with_ids(encoded_data, np.array(sentences["id"]))
 
@@ -185,7 +188,3 @@ def semantic_sentence_search(text: str, n: int = 3):
             "sentence": id_to_sen[int(top_n[1][0][i])],
         } for i in range(n)
     }
-
-# query = str(input("문장을 입력하세요: "))
-# result = semantic_sentence_search(query)
-# print(result)
