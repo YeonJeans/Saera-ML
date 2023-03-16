@@ -140,7 +140,7 @@ def get_DTW_score(graph_1, graph_2):
 def compare(target, user):
     # DTW_score = get_DTW_score(target, user)
     graph_1, graph_2 = preprocess(target, user)
-    print(len(graph_1["pitch_x"]), len(graph_2["pitch_x"]))
+    
     MAPE_score = get_MAPE_score(graph_1, graph_2)
     DTW_score = get_DTW_score(graph_1, graph_2)
     # print("DTW: ", DTW_score)
