@@ -50,7 +50,7 @@ def smooth(graph):
     return graph
 
 
-def fill_gap(graph, fill_with = NAN):
+def fill_gap(graph, start = 0, end = None, fill_with = NAN):
     # pitch_x가 빈 값 없이 연속적인 정수 값을 갖도록 바꾸고,
     # pitch_y 데이터 중 비어있는 값을 fill_with로 채운다.
     pitch_x, pitch_y = graph["pitch_x"], graph["pitch_y"]
@@ -58,20 +58,23 @@ def fill_gap(graph, fill_with = NAN):
     if len(pitch_x) == 0 and len(pitch_y) == 0:
         return None
 
-    pitch_x_start_value = pitch_x[0]
-    pitch_x = [x - pitch_x_start_value for x in pitch_x]
-
     pitch_x_last_value = pitch_x[-1]
-    filled_pitch_x = [i for i in range(pitch_x_last_value + 1)]
-    filled_pitch_y = [fill_with] * (pitch_x_last_value + 1)
+
+    if end is None:
+        end = pitch_x_last_value
+
+    filled_pitch_x = list(range(start, end + 1))
+    filled_pitch_y = [fill_with] * (end - start + 1)
 
     for i, x in enumerate(pitch_x):
-        filled_pitch_y[x] = pitch_y[i]
+        filled_pitch_y[x - start] = pitch_y[i]
 
-    graph["pitch_x"] = filled_pitch_x
-    graph["pitch_y"] = filled_pitch_y
+    new_graph = {}
 
-    return graph
+    new_graph["pitch_x"] = filled_pitch_x
+    new_graph["pitch_y"] = filled_pitch_y
+
+    return new_graph
 
 
 def scale(graph, target_length):
@@ -96,9 +99,10 @@ def interpolate(graph, target=[ NAN ], method="values"):
 
     ts.replace(target, np.nan, inplace=True)
     ts.interpolate(method=method, inplace=True)
+    ts.replace(target, np.nan, inplace=True)
 
     graph["pitch_y"] = ts.tolist()
-    
+    print(graph["pitch_y"])
     return graph
     
 

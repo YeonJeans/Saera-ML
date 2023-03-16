@@ -6,7 +6,7 @@ import tensorflow_hub as hub
 
 from scipy.io import wavfile
 
-from utils import smooth, compare, convert_audio_for_model, semantic_sentence_search
+from utils import smooth, compare, convert_audio_for_model, semantic_sentence_search, fill_gap, interpolate
 from model import ScoreRequest
 import auth
 
@@ -114,8 +114,12 @@ def get_pitch_graph(audio: UploadFile = File(...), api_key: APIKey = Depends(aut
         'pitch_x': confident_pitch_outputs_x,
         'pitch_y': confident_pitch_outputs_y
     }
+    
+    pitch_graph = fill_gap(pitch_graph, start=pitch_graph['pitch_x'][0], end=pitch_graph['pitch_x'][-1])
+    pitch_graph = interpolate(pitch_graph)
+    pitch_graph = smooth(pitch_graph)
 
-    response_body = smooth(pitch_graph)
+    response_body = fill_gap(pitch_graph, start=0, end=len(pitch_outputs), fill_with=0)
 
     return response_body
 
