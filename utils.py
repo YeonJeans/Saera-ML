@@ -69,12 +69,10 @@ def fill_gap(graph, start = 0, end = None, fill_with = NAN):
     for i, x in enumerate(pitch_x):
         filled_pitch_y[x - start] = pitch_y[i]
 
-    new_graph = {}
+    graph['pitch_x'] = filled_pitch_x
+    graph['pitch_y'] = filled_pitch_y
 
-    new_graph["pitch_x"] = filled_pitch_x
-    new_graph["pitch_y"] = filled_pitch_y
-
-    return new_graph
+    return graph
 
 
 def scale(graph, target_length):
@@ -87,7 +85,7 @@ def scale(graph, target_length):
     
     scale_factor = (target_length - 1) / (len(graph["pitch_x"]) - 1)
     graph["pitch_x"] = [math.ceil(x * scale_factor) for x in graph["pitch_x"]]
-    graph = fill_gap(graph)
+    graph = fill_gap(graph, start=graph["pitch_x"][0], end=graph["pitch_x"][-1])
 
     return graph
 
@@ -102,13 +100,13 @@ def interpolate(graph, target=[ NAN ], method="values"):
     ts.replace(target, np.nan, inplace=True)
 
     graph["pitch_y"] = ts.tolist()
-    print(graph["pitch_y"])
+
     return graph
     
 
 def preprocess(graph_1, graph_2):
-    graph_1 = fill_gap(graph_1)
-    graph_2 = fill_gap(graph_2)
+    graph_1 = fill_gap(graph_1, start=graph_1['pitch_x'][0], end=graph_1['pitch_x'][-1])
+    graph_2 = fill_gap(graph_2, start=graph_2['pitch_x'][0], end=graph_2['pitch_x'][-1])
 
     shorter_graph, longer_graph = sorted([graph_1, graph_2], key=lambda x: len(x["pitch_x"]))
 
@@ -142,6 +140,7 @@ def get_DTW_score(graph_1, graph_2):
 def compare(target, user):
     # DTW_score = get_DTW_score(target, user)
     graph_1, graph_2 = preprocess(target, user)
+    print(len(graph_1["pitch_x"]), len(graph_2["pitch_x"]))
     MAPE_score = get_MAPE_score(graph_1, graph_2)
     DTW_score = get_DTW_score(graph_1, graph_2)
     # print("DTW: ", DTW_score)
