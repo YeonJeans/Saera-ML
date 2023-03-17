@@ -104,10 +104,12 @@ def interpolate(graph, target=[ NAN ], method="values"):
     return graph
     
 
-def preprocess(graph_1, graph_2):
+def get_MAPE_score(graph_1, graph_2):
+    # 보간을 위해 인덱스상 빈 값이 없도록 한다.
     graph_1 = fill_gap(graph_1, start=graph_1['pitch_x'][0], end=graph_1['pitch_x'][-1])
     graph_2 = fill_gap(graph_2, start=graph_2['pitch_x'][0], end=graph_2['pitch_x'][-1])
 
+    # 두 그래프의 길이를 긴 쪽에 맞추어 같도록 한 후 보간한다..
     shorter_graph, longer_graph = sorted([graph_1, graph_2], key=lambda x: len(x["pitch_x"]))
 
     target_length = len(longer_graph["pitch_x"])
@@ -116,15 +118,9 @@ def preprocess(graph_1, graph_2):
     shorter_graph = interpolate(shorter_graph)
     longer_graph = interpolate(longer_graph)
 
-    return shorter_graph, longer_graph
-
-
-def get_MAPE_score(graph_1, graph_2):
-    if len(graph_1["pitch_x"]) != len(graph_2["pitch_x"]):
-        raise ValueError("The length of two graphs must be same.")
-    
-    target_y = DataFrame(graph_1["pitch_y"] if graph_1["label"] == "target" else graph_2["pitch_y"])
-    user_y = DataFrame(graph_1["pitch_y"] if graph_1["label"] == "user" else graph_2["pitch_y"])
+    # MAPE를 계산한다.
+    target_y = DataFrame(shorter_graph["pitch_y"] if shorter_graph["label"] == "target" else longer_graph["pitch_y"])
+    user_y = DataFrame(shorter_graph["pitch_y"] if shorter_graph["label"] == "user" else longer_graph["pitch_y"])
 
     MAPE = np.mean(np.abs((target_y - user_y) / target_y)) * 100
     score = 100 - MAPE[0]
@@ -138,11 +134,9 @@ def get_DTW_score(graph_1, graph_2):
 
 
 def compare(target, user):
-    # DTW_score = get_DTW_score(target, user)
-    graph_1, graph_2 = preprocess(target, user)
+    DTW_score = get_DTW_score(target, user)
+    MAPE_score = get_MAPE_score(target, user)
     
-    MAPE_score = get_MAPE_score(graph_1, graph_2)
-    DTW_score = get_DTW_score(graph_1, graph_2)
     # print("DTW: ", DTW_score)
     # print("MAPE: ", MAPE_score)
     return MAPE_score, DTW_score
