@@ -148,7 +148,7 @@ def calculate_pitch_score(score_request: ScoreRequest, api_key: APIKey = Depends
     }
 
     MAPE_score, DTW_score = compare(target_pitch, user_pitch)
-    logger.info('[/score] calculated MAPE score: {}, DTW score'.format(MAPE_score, DTW_score))
+    logger.info('[/score] calculated MAPE score: {}, DTW score: {}'.format(MAPE_score, DTW_score))
     
     return {
         'MAPE_score': MAPE_score,
