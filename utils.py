@@ -181,6 +181,9 @@ def semantic_sentence_search(query: str, is_excluding_exact_result: bool, n_of_e
         # 문장이 많아지면 실행 시간이 오래 걸리니 가능하면 스프링에서 n_of_containing_query를 넘겨주는 것이 좋다.
         n_of_exact_result = len([sen for sen in sentences["sentence"] if query in sen])
 
+    if top_n + n_of_exact_result > len(sentences):
+        raise Exception("top_n + n_of_exact_result is greater than the number of sentences.")
+    
     query_vector = model.encode([query])
     top_n_sentences_id = index.search(query_vector, top_n + n_of_exact_result)
     # top_n_sentences_id에서 query를 포함하는 문장을 제외한다.
