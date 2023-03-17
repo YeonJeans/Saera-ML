@@ -116,6 +116,7 @@ def get_pitch_graph(audio: UploadFile = File(...), api_key: APIKey = Depends(aut
     }
     
     response_body = smooth(pitch_graph)
+    response_body['pitch_length'] = len(pitch_outputs)
 
     return response_body
 
