@@ -157,9 +157,16 @@ def calculate_pitch_score(score_request: ScoreRequest, api_key: APIKey = Depends
 
 
 @app.get('/semantic-search')
-def sementic_search(query: str, top_n: int = 3, api_key: APIKey = Depends(auth.get_api_key)):
+def sementic_search(query: str,
+                    top_n: int = 3,
+                    is_excluding_exact_result: bool = True,
+                    n_of_exact_result: int = 0,
+                    api_key: APIKey = Depends(auth.get_api_key)):
     logger.info('[/semantic-search] called; query: {}'.format(query))
-    result = semantic_sentence_search(query, top_n)
+    result = semantic_sentence_search(query=query,
+                                      is_excluding_exact_result=is_excluding_exact_result,
+                                      n_of_exact_result=n_of_exact_result,
+                                      top_n=top_n)
     logger.info('[/semantic-search] result: {}'.format(result))
 
     return result

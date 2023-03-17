@@ -17,8 +17,13 @@ NAN = -1
 sentences = pandas.read_csv('data/sentences.csv')
 
 print("model loading...")
+
 model = SentenceTransformer("jhgan/ko-sroberta-multitask")
 encoded_data = model.encode(sentences["sentence"])
+index = faiss.IndexIDMap(faiss.IndexFlatIP(768))
+index.add_with_ids(encoded_data, np.array(sentences["id"]))
+faiss.write_index(index, 'sentences.index')
+
 print("model loaded")
 
 
@@ -168,20 +173,22 @@ def create_sen_to_id_dict():
     return sen_to_id
 
 
-def semantic_sentence_search(text: str, n: int = 3):
+def semantic_sentence_search(query: str, is_excluding_exact_result: bool, n_of_exact_result: int, top_n: int = 3):
     id_to_sen = create_id_to_sen_dict()
 
-    index = faiss.IndexIDMap(faiss.IndexFlatIP(768))
-    index.add_with_ids(encoded_data, np.array(sentences["id"]))
+    if is_excluding_exact_result and not n_of_exact_result:
+        # query를 포함하는 문장의 개수를 구한다.
+        # 문장이 많아지면 실행 시간이 오래 걸리니 가능하면 스프링에서 n_of_containing_query를 넘겨주는 것이 좋다.
+        n_of_exact_result = len([sen for sen in sentences["sentence"] if query in sen])
 
-    faiss.write_index(index, 'sentences.index')
-
-    query_vector = model.encode([text])
-    top_n = index.search(query_vector, n)
-
+    query_vector = model.encode([query])
+    top_n_sentences_id = index.search(query_vector, top_n + n_of_exact_result)
+    # top_n_sentences_id에서 query를 포함하는 문장을 제외한다.
+    top_n_sentences_id = [s_id for s_id in top_n_sentences_id[1][0] if query not in id_to_sen[s_id]]
+    
     return {
         str(i): {
-            "id": int(top_n[1][0][i]),
-            "sentence": id_to_sen[int(top_n[1][0][i])],
-        } for i in range(n)
+            "id": str(s_id),
+            "sentence": id_to_sen[s_id],
+        } for i, s_id in enumerate(top_n_sentences_id[:top_n])
     }
