@@ -110,10 +110,6 @@ def interpolate(graph, target=[ NAN ], method="values"):
     
 
 def get_MAPE_score(graph_1, graph_2):
-    # 보간을 위해 인덱스상 빈 값이 없도록 한다.
-    graph_1 = fill_gap(graph_1, start=graph_1['pitch_x'][0], end=graph_1['pitch_x'][-1])
-    graph_2 = fill_gap(graph_2, start=graph_2['pitch_x'][0], end=graph_2['pitch_x'][-1])
-
     # 두 그래프의 길이를 긴 쪽에 맞추어 같도록 한 후 보간한다..
     shorter_graph, longer_graph = sorted([graph_1, graph_2], key=lambda x: len(x["pitch_x"]))
 
@@ -139,6 +135,9 @@ def get_DTW_score(graph_1, graph_2):
 
 
 def compare(target, user):
+    target = interpolate(fill_gap(target, start=target['pitch_x'][0], end=target['pitch_x'][-1]))
+    user = interpolate(fill_gap(user, start=user['pitch_x'][0], end=user['pitch_x'][-1]))
+
     DTW_score = get_DTW_score(target, user)
     MAPE_score = get_MAPE_score(target, user)
     
