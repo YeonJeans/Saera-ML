@@ -16,7 +16,6 @@ NAN = -1
 
 sentences = pandas.read_csv('data/sentences.csv')
 
-print("model loading...")
 
 model = SentenceTransformer("jhgan/ko-sroberta-multitask")
 encoded_data = model.encode(sentences["sentence"])
@@ -24,7 +23,7 @@ index = faiss.IndexIDMap(faiss.IndexFlatIP(768))
 index.add_with_ids(encoded_data, np.array(sentences["id"]))
 faiss.write_index(index, 'sentences.index')
 
-print("model loaded")
+print("SROBERTa model loaded")
 
 
 def convert_audio_for_model(user_file, output_file='converted_audio_file.wav', sampling_rate=16000):

@@ -20,10 +20,13 @@ import urllib
 import datetime
 
 
-logger = logging.getLogger()
+logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
+logger = logging.getLogger(__name__)
+
 logger.setLevel(logging.INFO)
 
-print("TensorFlow version: ", tf.__version__)
+logger.info('Starting server...')
+logger.info('Tensorflow version: {}'.format(tf.__version__))
 
 # Ignore warning about tensorflow
 tf.get_logger().setLevel(logging.ERROR)
@@ -33,6 +36,7 @@ load_dotenv(verbose=True)
 
 os.environ["TFHUB_CACHE_DIR"] = ".cache/tfhub"
 model = hub.load('https://tfhub.dev/google/spice/2')
+logger.info('SPICE Model loaded')
 sampling_rate = int(os.getenv('SAMPLING_RATE'))
 
 app = FastAPI()
@@ -127,6 +131,7 @@ def get_pitch_graph(audio: UploadFile = File(...), api_key: APIKey = Depends(aut
 @app.post('/score')
 def calculate_pitch_score(score_request: ScoreRequest, api_key: APIKey = Depends(auth.get_api_key)):
     logger.info('[/score] called')
+    logger.info('[/score] score_request: {}'.format(score_request))
     pitch_data = score_request.dict()
 
     if len(pitch_data['target_pitch_x']) != len(pitch_data['target_pitch_y']):
