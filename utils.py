@@ -123,6 +123,10 @@ def get_MAPE_score(graph_1, graph_2):
     user_y = DataFrame(shorter_graph["pitch_y"] if shorter_graph["label"] == "user" else longer_graph["pitch_y"])
 
     MAPE = np.mean(np.abs((target_y - user_y) / target_y)) * 100
+
+    if MAPE[0] in [np.nan, np.inf, -np.inf]:
+        MAPE[0] = 100
+    
     score = 100 - MAPE[0]
     # print("MAPE: ", MAPE)
     return score
