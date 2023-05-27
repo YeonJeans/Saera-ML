@@ -31,11 +31,11 @@ class Pitch:
         return f'{self.label}: \n\tx: {self.x}, \n\ty: {self.y}'
     
     
-    def smooth_data_savgol(self, arr, span):
+    def __smooth_data_savgol(self, arr, span):
         return savgol_filter(arr, span, 2)
     
 
-    def smooth_data_fft(self, arr, span):
+    def __smooth_data_fft(self, arr, span):
         w = fftpack.rfft(arr)
         spectrum = w ** 2
         cutoff_idx = spectrum < (spectrum.max() * (1 - np.exp(-span / 2000)))
@@ -48,7 +48,7 @@ class Pitch:
         if smoothing_algorithm not in ['fft', 'savgol']:
             raise Exception('smoothing_algorithm must be "fft" or "savgol"')
         
-        smoothing_algorithm = getattr(self, f'smooth_data_{smoothing_algorithm}')
+        smoothing_algorithm = getattr(self, f'__smooth_data_{smoothing_algorithm}')
 
         smoothed_pitch_y = smoothing_algorithm(self.y, 1.2)
         smoothed_pitch_y = smoothed_pitch_y.tolist()
@@ -57,7 +57,7 @@ class Pitch:
         # print(graph)
 
 
-    def fill(self, start = 0, end = None, fill_with = -1):
+    def __fill(self, start = 0, end = None, fill_with = -1):
         # pitch_x가 빈 값 없이 연속적인 정수 값을 갖도록 바꾸고,
         # pitch_y 데이터 중 비어있는 값을 fill_with로 채운다.
 
@@ -79,7 +79,7 @@ class Pitch:
         self.y = filled_pitch_y
 
 
-    def scale(self, target_length):
+    def __scale(self, target_length):
         if target_length < len(self.x):
             raise Exception('Target length is shorter than pitch data')
 
@@ -87,7 +87,7 @@ class Pitch:
         self.x = [math.ceil(x * scale_factor) for x in self.x]
     
     
-    def interpolate(self, target=[ -1 ], method="values"):
+    def __interpolate(self, target=[ -1 ], method="values"):
         # target으로 채워진 값을 보간한다.
         ts = Series(self.y, index=self.x)
 
@@ -103,11 +103,11 @@ class Pitch:
         target = self if self.label == "target" else other
         user = self if self.label == "user" else other
 
-        target.fill(start=target.x[0], end=target.x[-1])
-        target.interpolate()
+        target.__fill(start=target.x[0], end=target.x[-1])
+        target.__interpolate()
 
-        user.fill(start=user.x[0], end=user.x[-1])
-        user.interpolate()
+        user.__fill(start=user.x[0], end=user.x[-1])
+        user.__interpolate()
 
         # DTW distance를 구한다.
         return dtw.dtw(target.y, user.y, keep_internals=True).distance
@@ -131,7 +131,7 @@ class PitchGraphGenerator:
             raise Exception('Model not found')
         
 
-    def convert_audio_for_model(self, user_file, output_file='converted_audio_file.wav', sampling_rate=16000):
+    def __convert_audio_for_model(self, user_file, output_file='converted_audio_file.wav', sampling_rate=16000):
         audio = AudioSegment.from_file(user_file)
         audio = audio.set_frame_rate(sampling_rate).set_channels(1)
         audio.export(output_file, format='wav')
@@ -144,7 +144,7 @@ class PitchGraphGenerator:
         with open('audio_pitch/{}.wav'.format(random_name), 'wb') as f:
             f.write(raw_audio_file)
 
-        converted_audio_file = self.convert_audio_for_model('audio_pitch/{}.wav'.format(random_name),
+        converted_audio_file = self.__convert_audio_for_model('audio_pitch/{}.wav'.format(random_name),
                                                   'audio_pitch/converted_{}.wav'.format(random_name),
                                                   self.sampling_rate)
         _, audio_file = wavfile.read(converted_audio_file, 'rb')
@@ -181,13 +181,13 @@ class SemanticEngine:
         self.model = SentenceTransformer(model_path)
         self.sentences = pandas.read_csv(csv_path)
         self.index = faiss.IndexIDMap(faiss.IndexFlatIP(768))
-        self.create_id_to_sen_dict()
+        self.__create_id_to_sen_dict()
 
         encoded_data = self.model.encode(self.sentences["sentence"])
         self.index.add_with_ids(encoded_data, np.array(self.sentences["id"]))
     
 
-    def create_id_to_sen_dict(self):
+    def __create_id_to_sen_dict(self):
         self.id_to_sen = {}
         for i in range(len(self.sentences)):
             self.id_to_sen[self.sentences["id"][i]] = self.sentences["sentence"][i]
