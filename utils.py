@@ -48,7 +48,7 @@ class Pitch:
         if smoothing_algorithm not in ['fft', 'savgol']:
             raise Exception('smoothing_algorithm must be "fft" or "savgol"')
         
-        smoothing_algorithm = getattr(self, f'__smooth_data_{smoothing_algorithm}')
+        smoothing_algorithm = self.__smooth_data_fft if smoothing_algorithm == 'fft' else self.__smooth_data_savgol
 
         smoothed_pitch_y = smoothing_algorithm(self.y, 1.2)
         smoothed_pitch_y = smoothed_pitch_y.tolist()
