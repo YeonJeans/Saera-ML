@@ -1,6 +1,9 @@
 from fastapi import FastAPI, status, HTTPException, Response, File, UploadFile, Depends
 from fastapi.security.api_key import APIKey
+from google.oauth2 import service_account
+from google.cloud import speech
 import tensorflow as tf
+from typing import Annotated
 
 from utils import Pitch, PitchGraphGenerator, SemanticEngine
 from model import ScoreRequest
@@ -28,6 +31,12 @@ model = PitchGraphGenerator()
 logger.info('SPICE Model loaded')
 engine = SemanticEngine("jhgan/ko-sroberta-multitask", "data/sentences.csv")
 logger.info('Semantic Engine loaded')
+
+
+credentials = service_account.Credentials.from_service_account_file(
+    'google-credential.json')
+speech_client = speech.SpeechClient()
+logger.info('Google STT API loaded')
 
 sampling_rate = int(os.getenv('SAMPLING_RATE'))
 
@@ -128,3 +137,28 @@ def sementic_search(query: str,
     logger.info('[/semantic-search] result: {}'.format(result))
 
     return result
+
+
+@app.post('/word-score')
+def calculate_word_score(audio: Annotated[bytes, File()], target_word: str, api_key: APIKey = Depends(auth.get_api_key)):
+    logger.info('[/word-score] called')
+    logger.info('[/word-score] target word:')
+    rec_audio = speech.RecognitionAudio(content=audio)
+
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=16000,
+        language_code="ko-KR",
+    )
+    # Detects speech in the audio file
+    stt_response = speech_client.recognize(config=config, audio=rec_audio)
+    response_body = {
+        "result": False
+    }
+
+    print(stt_response.results)
+
+    if stt_response.results[0].alternatives[0].transcript == target_word and stt_response.results[0].alternatives[0].confidence > 0.5:
+        response_body["result"] = True
+
+    return response_body
