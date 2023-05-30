@@ -110,7 +110,7 @@ class Pitch:
         user.__interpolate()
 
         # DTW distance를 구한다.
-        return dtw.dtw(target.y, user.y, keep_internals=True).distance
+        return dtw.dtw(target.y, user.y, distance_only=True, keep_internals=True).distance
 
 
     def draw(self):
